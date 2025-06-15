@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require("express");
 const sequelize = require("./config/db");
 const usersRouter = require("./routes/user");
@@ -30,6 +29,6 @@ app.use("/", lectureRoutes);
 app.use("/", chapterRoutes);
 
 
-app.listen( 3600 , () => {
-    console.log(`🚀 Server running on http://localhost:3600`);
+app.listen( 4000 , () => {
+    console.log(`🚀 Server running on http://localhost:4000`);
 });

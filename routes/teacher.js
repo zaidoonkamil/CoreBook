@@ -3,7 +3,7 @@ const router = express.Router();
 const Teacher = require('../models/teacher');
 const Subject = require('../models/subject');
 const multer = require("multer");
-const upload = multer();
+const upload = require("../middlewares/uploads");
 
 
 // إضافة أستاذ جديد لمادة

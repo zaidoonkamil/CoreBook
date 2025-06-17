@@ -7,10 +7,14 @@ const upload = multer();
 
 
 // إضافة أستاذ جديد لمادة
-router.post('/teacher',upload.none() , async (req, res) => {
+router.post('/teacher',upload.array("images",5)  , async (req, res) => {
   try {
     const { name, subjectId } = req.body;
-    const newTeacher = await Teacher.create({ name, subjectId });
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: "جميع الحقول مطلوبة" });
+    }
+    const images = req.files.map(file => file.filename);
+    const newTeacher = await Teacher.create({ name, subjectId , images });
     res.status(201).json(newTeacher);
   } catch (error) {
     res.status(500).json({ error: 'خطأ أثناء إضافة الأستاذ', details: error.message });

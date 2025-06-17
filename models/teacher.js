@@ -15,8 +15,11 @@ const Teacher = sequelize.define("teacher", {
   subjectId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  }
-}, {
+  },
+  images: {
+    type: DataTypes.JSON,
+    allowNull: false,
+  }}, {
   timestamps: true
 });
 

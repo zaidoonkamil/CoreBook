@@ -14,7 +14,6 @@ router.post("/ads",upload.array("images",5) , async (req, res) => {
             images,
             title: name,
             description: description,
-            images,
         });
 
         res.status(201).json({ message: "ads created successfully", ads });

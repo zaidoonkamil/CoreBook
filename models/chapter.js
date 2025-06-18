@@ -8,13 +8,9 @@ const Chapter = sequelize.define("chapter", {
     autoIncrement: true,
     primaryKey: true,
   },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   videoUrl: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   attachment: {
     type: DataTypes.STRING,

@@ -7,7 +7,7 @@ const upload = multer();
 // إضافة فصل لمحاضرة
 router.post('/chapter', upload.none(), async (req, res) => {
   try {
-    const { title, videoUrl, attachment, summary, lectureId } = req.body;
+    const { videoUrl, attachment, summary, lectureId } = req.body;
     const newChapter = await Chapter.create({ title, videoUrl, attachment, summary, lectureId });
     res.status(201).json(newChapter);
   } catch (error) {

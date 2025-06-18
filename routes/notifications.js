@@ -37,76 +37,19 @@ router.post("/register-device", async (req, res) => {
 
 router.post('/send-notification-to-role', upload.none(), async (req, res) => {
   const { title, message, role } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ error: 'message مطلوب' });
-  }
-
-  if (!role) {
-    return res.status(400).json({ error: 'role مطلوب' });
-  }
+  if (!message) return res.status(400).json({ error: 'message مطلوب' });
+  if (!role) return res.status(400).json({ error: 'role مطلوب' });
 
   try {
-    // جلب الأجهزة المرتبطة بالمستخدمين حسب الدور المطلوب
-    const devices = await UserDevice.findAll({
-      include: [{
-        model: User,
-        where: { role }
-      }]
-    });
-
-    const playerIds = devices.map(device => device.player_id);
-
-    if (playerIds.length === 0) {
-      // نسجل محاولة إرسال فاشلة
-      await NotificationLog.create({
-        title: title || "Notification",
-        message,
-        target_type: "role",
-        target_value: role,
-        status: "failed"
-      });
-      return res.status(404).json({ error: `لا توجد أجهزة للمستخدمين برول ${role}` });
+    const result = await sendNotificationToRole(role, message, title);
+    if (result.success) {
+      res.json({ success: true, message: `تم إرسال الإشعار للمستخدمين برول ${role}` });
+    } else {
+      res.status(404).json({ error: result.message });
     }
-
-    const url = 'https://onesignal.com/api/v1/notifications';
-    const headers = {
-      'Authorization': `Basic ${process.env.ONESIGNAL_API_KEY}`,
-      'Content-Type': 'application/json',
-    };
-    const data = {
-      app_id: process.env.ONESIGNAL_APP_ID,
-      include_player_ids: playerIds,
-      contents: { en: message },
-      headings: { en: title || "Notification" },
-    };
-
-    await axios.post(url, data, { headers });
-
-    // نسجل الإشعار المرسل
-    await NotificationLog.create({
-      title: title || "Notification",
-      message,
-      target_type: "role",
-      target_value: role,
-      status: "sent"
-    });
-
-    return res.json({ success: true, message: `تم إرسال الإشعار لجميع المستخدمين برول ${role}` });
-
   } catch (error) {
-    console.error(`❌ Error sending notification to role ${role}:`, error.response ? error.response.data : error.message);
-    
-    // نسجل الخطأ في قاعدة البيانات
-    await NotificationLog.create({
-      title: title || "Notification",
-      message,
-      target_type: "role",
-      target_value: role,
-      status: "failed"
-    });
-
-    return res.status(500).json({ error: 'حدث خطأ أثناء إرسال الإشعار' });
+    console.error(error);
+    res.status(500).json({ error: 'فشل في إرسال الإشعار' });
   }
 });
 

@@ -22,7 +22,7 @@ router.post('/teacher',upload.array("images",5)  , async (req, res) => {
 });
 
 // جلب جميع الأساتذة
-router.get('/teachers', async (req, res) => {
+router.get('/teacher', async (req, res) => {
   try {
     const teachers = await Teacher.findAll({
       include: [{

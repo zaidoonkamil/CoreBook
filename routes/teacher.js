@@ -60,11 +60,20 @@ router.get('/class/:classId/teachers', async (req, res) => {
 router.get('/subject/:subjectId', async (req, res) => {
   try {
     const { subjectId } = req.params;
-    const teachers = await Teacher.findAll({ where: { subjectId } });
+
+    const teachers = await Teacher.findAll({
+      where: { subjectId },
+      include: [{
+        model: Subject,
+        attributes: ['name']
+      }]
+    });
+
     res.status(200).json(teachers);
   } catch (error) {
     res.status(500).json({ error: 'خطأ أثناء جلب أساتذة المادة', details: error.message });
   }
 });
+
 
 module.exports = router;

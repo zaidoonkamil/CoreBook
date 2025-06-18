@@ -8,14 +8,14 @@ const teacherRoutes = require("./routes/teacher");
 const subscriptionRoutes = require("./routes/subscription");
 const lectureRoutes = require("./routes/lecture");
 const chapterRoutes = require('./routes/chapterRoutes');
-//const notifications = require("./routes/notifications.js");
+const notifications = require("./routes/notifications.js");
 
 
 const app = express();
 app.use(express.json());
 app.use("/uploads", express.static("./" + "uploads"));
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
     .then(() => console.log("✅ Database & User table synced!"))
     .catch(err => console.error("❌ Error syncing database:", err));
 
@@ -28,7 +28,7 @@ app.use("/", teacherRoutes);
 app.use("/", subscriptionRoutes);
 app.use("/", lectureRoutes);
 app.use("/", chapterRoutes);
-//app.use("/", notifications);
+app.use("/", notifications);
 
 
 app.listen( 4000 , () => {

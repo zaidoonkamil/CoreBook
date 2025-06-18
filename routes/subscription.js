@@ -46,15 +46,10 @@ router.get('/student/:studentId', async (req, res) => {
 
 router.post('/check-subscription', upload.none(), async (req, res) => {
   try {
-    const { studentId, subjectId } = req.body;
+    const { studentId, teacherId } = req.body;
 
-    // تحقق من وجود اشتراك مع أي أستاذ لهذه المادة
     const subscription = await Subscription.findOne({
-      where: { studentId },
-      include: {
-        model: Teacher,
-        where: { subjectId }
-      }
+      where: { studentId, teacherId }
     });
 
     if (subscription) {
@@ -67,6 +62,7 @@ router.post('/check-subscription', upload.none(), async (req, res) => {
     res.status(500).json({ error: 'خطأ أثناء التحقق من الاشتراك', details: error.message });
   }
 });
+
 
 
 module.exports = router;

@@ -9,12 +9,12 @@ const upload = require("../middlewares/uploads");
 // إضافة أستاذ جديد لمادة
 router.post('/teacher',upload.array("images",5)  , async (req, res) => {
   try {
-    const { name, subjectId } = req.body;
-    if (!req.files || req.files.length === 0) {
+    const { name, subjectId, price } = req.body;
+    if (!req.files || req.files.length === 0 || !price) {
         return res.status(400).json({ error: "جميع الحقول مطلوبة" });
     }
     const images = req.files.map(file => file.filename);
-    const newTeacher = await Teacher.create({ name, subjectId , images });
+    const newTeacher = await Teacher.create({ name, subjectId , images, price });
     res.status(201).json(newTeacher);
   } catch (error) {
     res.status(500).json({ error: 'خطأ أثناء إضافة الأستاذ', details: error.message });
@@ -22,13 +22,18 @@ router.post('/teacher',upload.array("images",5)  , async (req, res) => {
 });
 
 // جلب جميع الأساتذة
-router.get('/teacher', async (req, res) => {
+router.get('/teachers', async (req, res) => {
   try {
-    // اضافة ال subjectname على اساس ال subjectId
-    const teachers = await Teacher.findAll();
+    const teachers = await Teacher.findAll({
+      include: [{
+        model: Subject,
+        attributes: ['name']   // ✅ فقط الاسم
+      }]
+    });
+
     res.status(200).json(teachers);
   } catch (error) {
-    res.status(500).json({ error: 'خطأ أثناء جلب الأساتذة', details: error.message });
+    res.status(500).json({ error: 'خطأ أثناء جلب المدرسين', details: error.message });
   }
 });
 

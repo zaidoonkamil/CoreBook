@@ -16,6 +16,10 @@ const Teacher = sequelize.define("teacher", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  price: {                          
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
   images: {
     type: DataTypes.JSON,
     allowNull: false,

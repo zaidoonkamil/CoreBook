@@ -8,7 +8,7 @@ const teacherRoutes = require("./routes/teacher");
 const subscriptionRoutes = require("./routes/subscription");
 const lectureRoutes = require("./routes/lecture");
 const chapterRoutes = require('./routes/chapterRoutes');
-const notifications = require("./routes/notifications.js");
+//const notifications = require("./routes/notifications.js");
 
 
 const app = express();
@@ -28,7 +28,7 @@ app.use("/", teacherRoutes);
 app.use("/", subscriptionRoutes);
 app.use("/", lectureRoutes);
 app.use("/", chapterRoutes);
-app.use("/", notifications);
+//app.use("/", notifications);
 
 
 app.listen( 4000 , () => {

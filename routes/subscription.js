@@ -5,12 +5,15 @@ const Teacher = require('../models/teacher');
 const Subject = require('../models/subject');
 const multer = require("multer");
 const upload = multer();
+const { sendNotificationToRoleWithoutLog, sendNotificationToUser } = require('../services/notifications');
 
 // طلب اشتراك (من الطالب)
 router.post('/subscription', upload.none(), async (req, res) => {
   try {
     const { studentId, teacherId } = req.body;
     const newSubscription = await Subscription.create({ studentId, teacherId });
+    const notificationMessage = `هناك طلب اشتراك جديد للدورة من الطالب رقم ${studentId}`;
+    await sendNotificationToRoleWithoutLog("admin", notificationMessage, "طلب اشتراك جديد");
     res.status(201).json(newSubscription);
   } catch (error) {
     res.status(500).json({ error: 'خطأ أثناء طلب الاشتراك', details: error.message });
@@ -27,6 +30,10 @@ router.patch('/subscription/:id',upload.none(),async (req, res) => {
 
     subscription.status = status;
     await subscription.save();
+
+    const studentId = subscription.studentId;
+    const message = `تم ${status === 'accepted' ? 'قبول' : 'تحديث'} طلب اشتراكك بنجاح`;
+    await sendNotificationToUser(studentId, message, 'حالة الاشتراك');
 
     res.status(200).json(subscription);
   } catch (error) {

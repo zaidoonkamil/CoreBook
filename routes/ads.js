@@ -20,8 +20,7 @@ router.post("/ads", upload.array("images", 5), async (req, res) => {
     });
 
     
-    const notificationMessage = `تمت إضافة إعلان جديد: ${name}`;
-    await sendNotificationToRole("user", notificationMessage, "إعلان جديد");
+    await sendNotificationToRole("user", description, name );
 
     res.status(201).json({ message: "ads created successfully", ads });
   } catch (err) {

@@ -70,6 +70,31 @@ router.post('/check-subscription', upload.none(), async (req, res) => {
   }
 });
 
+// جلب جميع طلبات الاشتراك مع إمكانية فلترة بالحالة
+router.get('/subscriptions', async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    const whereCondition = {};
+    if (status) {
+      whereCondition.status = status;
+    }
+
+    const subscriptions = await Subscription.findAll({
+      where: whereCondition,
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: Teacher },
+        { model: Subject }
+      ]
+    });
+
+    res.status(200).json(subscriptions);
+  } catch (error) {
+    console.error("❌ Error fetching subscriptions:", error);
+    res.status(500).json({ error: 'خطأ أثناء جلب طلبات الاشتراك', details: error.message });
+  }
+});
 
 
 module.exports = router;

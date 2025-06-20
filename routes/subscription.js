@@ -84,8 +84,21 @@ router.get('/subscriptions', async (req, res) => {
       where: whereCondition,
       order: [['createdAt', 'DESC']],
       include: [
-        { model: Teacher },
-      //  { model: Subject }
+        {
+          model: Teacher,
+          include: [
+            {
+              model: Subject,
+              attributes: ['id', 'name', 'classId'],
+              include: [
+                {
+                  model: Class,
+                  attributes: ['id', 'name']
+                }
+              ]
+            }
+          ]
+        }
       ]
     });
 

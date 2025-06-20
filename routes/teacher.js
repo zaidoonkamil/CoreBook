@@ -75,5 +75,22 @@ router.get('/subject/:subjectId', async (req, res) => {
   }
 });
 
+// حذف أستاذ
+router.delete('/teacher/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const teacher = await Teacher.findByPk(id);
+    
+    if (!teacher) {
+      return res.status(404).json({ error: 'الأستاذ غير موجود' });
+    }
+
+    await teacher.destroy();
+    res.status(200).json({ message: 'تم حذف الأستاذ بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ أثناء حذف الأستاذ', details: error.message });
+  }
+}
+);
 
 module.exports = router;

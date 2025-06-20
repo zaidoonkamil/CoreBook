@@ -26,4 +26,22 @@ router.get('/teacher/:teacherId', async (req, res) => {
   }
 });
 
+// حذف محاضرات استاذ معين
+router.delete('/teacher/:teacherId', async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const lectures = await Lecture.findAll({ where: { teacherId } });
+
+    if (lectures.length === 0) {
+      return res.status(404).json({ error: 'لا توجد محاضرات لهذا الأستاذ' });
+    }
+
+    await Lecture.destroy({ where: { teacherId } });
+    res.status(200).json({ message: 'تم حذف جميع المحاضرات بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ أثناء حذف المحاضرات', details: error.message });
+  }
+}
+);
+
 module.exports = router;

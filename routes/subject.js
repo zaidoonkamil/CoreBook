@@ -33,4 +33,21 @@ router.get('/class/:classId', async (req, res) => {
   }
 });
 
+router.delete('/subject/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const subject = await Subject.findByPk(id);
+    
+    if (!subject) {
+      return res.status(404).json({ error: 'المادة غير موجودة' });
+    }
+
+    await subject.destroy();
+    res.status(200).json({ message: 'تم حذف المادة بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ أثناء حذف المادة', details: error.message });
+  }
+}
+);
+
 module.exports = router;

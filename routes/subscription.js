@@ -110,5 +110,48 @@ router.get('/subscriptions', async (req, res) => {
   }
 });
 
+router.get('/subscriptions/active', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows: subscriptions } = await Subscription.findAndCountAll({
+      where: { status: 'active' },
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      include: [
+        {
+          model: Teacher,
+          include: [
+            {
+              model: Subject,
+              attributes: ['id', 'name', 'classId'],
+              include: [
+                {
+                  model: Class,
+                  attributes: ['id', 'name']
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    res.status(200).json({
+      total: count,
+      page: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      subscriptions
+    });
+
+  } catch (error) {
+    console.error("❌ Error fetching active subscriptions:", error);
+    res.status(500).json({ error: 'خطأ أثناء جلب طلبات الاشتراك', details: error.message });
+  }
+});
+
 
 module.exports = router;

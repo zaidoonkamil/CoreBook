@@ -85,7 +85,7 @@ router.get('/subscriptions', async (req, res) => {
       order: [['createdAt', 'DESC']],
       include: [
         { model: Teacher },
-        { model: Subject }
+      //  { model: Subject }
       ]
     });
 

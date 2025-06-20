@@ -3,6 +3,7 @@ const router = express.Router();
 const Subscription = require('../models/subscription');
 const Teacher = require('../models/teacher');
 const Subject = require('../models/subject');
+const Class = require('../models/class');
 const multer = require("multer");
 const upload = multer();
 const { sendNotificationToRoleWithoutLog, sendNotificationToUser } = require('../services/notifications');

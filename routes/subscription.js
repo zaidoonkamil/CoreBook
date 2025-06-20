@@ -3,6 +3,7 @@ const router = express.Router();
 const Subscription = require('../models/subscription');
 const Teacher = require('../models/teacher');
 const Subject = require('../models/subject');
+const User = require('../models/user');
 const Class = require('../models/class');
 const multer = require("multer");
 const upload = multer();
@@ -136,6 +137,11 @@ router.get('/subscriptions/active', async (req, res) => {
               ]
             }
           ]
+        },
+        {
+          model: User,
+          as: 'student',
+          attributes: ['id', 'name', 'phone']
         }
       ]
     });

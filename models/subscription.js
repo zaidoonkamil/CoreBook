@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Teacher = require("./teacher");
+const User = require("./user");
 
 const Subscription = sequelize.define("subscription", {
   id: {
@@ -36,5 +37,8 @@ const Subscription = sequelize.define("subscription", {
 // ربط الاشتراك بالأستاذ
 Subscription.belongsTo(Teacher, { foreignKey: 'teacherId' });
 Teacher.hasMany(Subscription, { foreignKey: 'teacherId' });
+
+Subscription.belongsTo(User, { foreignKey: 'studentId', as: 'student' });
+User.hasMany(Subscription, { foreignKey: 'studentId' });
 
 module.exports = Subscription;

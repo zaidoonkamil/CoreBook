@@ -100,6 +100,11 @@ router.get('/subscriptions', async (req, res) => {
               ]
             }
           ]
+        },
+        {
+          model: User,
+          as: 'student',
+          attributes: ['id', 'name', 'phone'] 
         }
       ]
     });

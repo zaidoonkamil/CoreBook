@@ -26,22 +26,21 @@ router.get('/teacher/:teacherId', async (req, res) => {
   }
 });
 
-// حذف محاضرات استاذ معين
-router.delete('/teacher/:teacherId', async (req, res) => {
+router.delete('/lecture/:id', async (req, res) => {
   try {
-    const { teacherId } = req.params;
-    const lectures = await Lecture.findAll({ where: { teacherId } });
+    const { id } = req.params;
+    const lecture = await Lecture.findByPk(id);
 
-    if (lectures.length === 0) {
-      return res.status(404).json({ error: 'لا توجد محاضرات لهذا الأستاذ' });
+    if (!lecture) {
+      return res.status(404).json({ error: 'المحاضرة غير موجودة' });
     }
 
-    await Lecture.destroy({ where: { teacherId } });
-    res.status(200).json({ message: 'تم حذف جميع المحاضرات بنجاح' });
+    await lecture.destroy();
+    res.status(200).json({ message: 'تم حذف المحاضرة بنجاح' });
   } catch (error) {
-    res.status(500).json({ error: 'خطأ أثناء حذف المحاضرات', details: error.message });
+    res.status(500).json({ error: 'خطأ أثناء حذف المحاضرة', details: error.message });
   }
-}
-);
+});
+
 
 module.exports = router;

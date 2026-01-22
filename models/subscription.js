@@ -35,10 +35,10 @@ const Subscription = sequelize.define("subscription", {
 });
 
 // ربط الاشتراك بالأستاذ
-Subscription.belongsTo(Teacher, { foreignKey: 'teacherId' });
-Teacher.hasMany(Subscription, { foreignKey: 'teacherId' });
+Subscription.belongsTo(Teacher, { foreignKey: 'teacherId' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Teacher.hasMany(Subscription, { foreignKey: 'teacherId' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
-Subscription.belongsTo(User, { foreignKey: 'studentId', as: 'student' });
-User.hasMany(Subscription, { foreignKey: 'studentId' });
+Subscription.belongsTo(User, { foreignKey: 'studentId', as: 'student' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+User.hasMany(Subscription, { foreignKey: 'studentId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
 
 module.exports = Subscription;

@@ -24,7 +24,7 @@ const Subject = sequelize.define("subject", {
   timestamps: true
 });
 
-Subject.belongsTo(Class, { foreignKey: 'classId' });
-Class.hasMany(Subject, { foreignKey: 'classId' });
+Subject.belongsTo(Class, { foreignKey: 'classId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
+Class.hasMany(Subject, { foreignKey: 'classId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
 
 module.exports = Subject;

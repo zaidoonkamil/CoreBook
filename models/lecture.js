@@ -20,7 +20,7 @@ const Lecture = sequelize.define("lecture", {
   timestamps: true
 });
 
-Lecture.belongsTo(Teacher, { foreignKey: 'teacherId' });
-Teacher.hasMany(Lecture, { foreignKey: 'teacherId' });
+Lecture.belongsTo(Teacher, { foreignKey: 'teacherId' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Teacher.hasMany(Lecture, { foreignKey: 'teacherId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
 
 module.exports = Lecture;

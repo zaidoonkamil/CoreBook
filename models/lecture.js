@@ -21,6 +21,6 @@ const Lecture = sequelize.define("lecture", {
 });
 
 Lecture.belongsTo(Teacher, { foreignKey: 'teacherId' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-Teacher.hasMany(Lecture, { foreignKey: 'teacherId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
+Teacher.hasMany(Lecture, { foreignKey: 'teacherId', onDelete: 'CASCADE', onUpdate: 'CASCADE' , hooks: true, });
 
 module.exports = Lecture;

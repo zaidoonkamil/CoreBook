@@ -12,113 +12,102 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
 
-// ✅ حماية بسيطة (غيّرها حسب نظامك)
-function adminGuard(req, res, next) {
-  const key = req.headers["x-admin-key"];
-  if (!key || key !== (process.env.DB_REPAIR_KEY || "CHANGE_ME")) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
-  next();
-}
-
-// 🔧 Database Repair Route
-router.post("/admin/db/repair", adminGuard, async (req, res) => {
+router.post("/db/repair-once", async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    // 1) ✅ تنظيف الداتا اليتيمة (Orphans)
-    // chapters فيها lectureId غير موجود
-    await sequelize.query(
-      `DELETE c FROM chapters c
-       LEFT JOIN lectures l ON l.id = c.lectureId
-       WHERE l.id IS NULL`,
-      { transaction: t }
-    );
+    /* =========================
+       1) تنظيف الداتا اليتيمة
+       ========================= */
 
-    // subscriptions فيها teacherId غير موجود
-    await sequelize.query(
-      `DELETE s FROM subscriptions s
-       LEFT JOIN teachers t2 ON t2.id = s.teacherId
-       WHERE t2.id IS NULL`,
-      { transaction: t }
-    );
+    // Chapters بدون Lecture
+    await sequelize.query(`
+      DELETE c FROM chapters c
+      LEFT JOIN lectures l ON l.id = c.lectureId
+      WHERE l.id IS NULL
+    `, { transaction: t });
 
-    // subscriptions فيها studentId غير موجود
-    await sequelize.query(
-      `DELETE s FROM subscriptions s
-       LEFT JOIN users u ON u.id = s.studentId
-       WHERE u.id IS NULL`,
-      { transaction: t }
-    );
+    // Lectures بدون Teacher
+    await sequelize.query(`
+      DELETE l FROM lectures l
+      LEFT JOIN teachers t2 ON t2.id = l.teacherId
+      WHERE t2.id IS NULL
+    `, { transaction: t });
 
-    // lectures فيها teacherId غير موجود (إذا صار عندك يتيمات)
-    await sequelize.query(
-      `DELETE l FROM lectures l
-       LEFT JOIN teachers t2 ON t2.id = l.teacherId
-       WHERE t2.id IS NULL`,
-      { transaction: t }
-    );
+    // Subscriptions بدون Teacher
+    await sequelize.query(`
+      DELETE s FROM subscriptions s
+      LEFT JOIN teachers t2 ON t2.id = s.teacherId
+      WHERE t2.id IS NULL
+    `, { transaction: t });
 
-    // 2) ✅ تعديل الـ FK constraints إلى CASCADE
-    // ⚠️ أسماء القيود حسب رسائلك:
-    // chapters_ibfk_1 ، subscriptions_ibfk_1
-    // إذا اختلفت عندك، راح تفشل وتحتاج تغيّر الاسم.
+    // Subscriptions بدون Student
+    await sequelize.query(`
+      DELETE s FROM subscriptions s
+      LEFT JOIN users u ON u.id = s.studentId
+      WHERE u.id IS NULL
+    `, { transaction: t });
 
-    // --- Chapters -> Lectures
-    await sequelize.query(
-      `ALTER TABLE chapters DROP FOREIGN KEY chapters_ibfk_1`,
-      { transaction: t }
-    );
-    await sequelize.query(
-      `ALTER TABLE chapters
-       ADD CONSTRAINT chapters_ibfk_1
-       FOREIGN KEY (lectureId) REFERENCES lectures(id)
-       ON DELETE CASCADE ON UPDATE CASCADE`,
-      { transaction: t }
-    );
+    /* =========================
+       2) تعديل Foreign Keys
+       ========================= */
 
-    // --- Subscriptions -> Teachers
-    await sequelize.query(
-      `ALTER TABLE subscriptions DROP FOREIGN KEY subscriptions_ibfk_1`,
-      { transaction: t }
-    );
-    await sequelize.query(
-      `ALTER TABLE subscriptions
-       ADD CONSTRAINT subscriptions_ibfk_1
-       FOREIGN KEY (teacherId) REFERENCES teachers(id)
-       ON DELETE CASCADE ON UPDATE CASCADE`,
-      { transaction: t }
-    );
+    // Chapters -> Lectures
+    await sequelize.query(`
+      ALTER TABLE chapters
+      DROP FOREIGN KEY chapters_ibfk_1
+    `, { transaction: t });
 
-    // إذا عندك FK ثاني بالاشتراكات على users للـ studentId
-    // لازم تعرف اسمه (مثلاً subscriptions_ibfk_2)
-    // هنا نخليه optional: إذا فشل نتجاهله
+    await sequelize.query(`
+      ALTER TABLE chapters
+      ADD CONSTRAINT chapters_ibfk_1
+      FOREIGN KEY (lectureId) REFERENCES lectures(id)
+      ON DELETE CASCADE ON UPDATE CASCADE
+    `, { transaction: t });
+
+    // Subscriptions -> Teachers
+    await sequelize.query(`
+      ALTER TABLE subscriptions
+      DROP FOREIGN KEY subscriptions_ibfk_1
+    `, { transaction: t });
+
+    await sequelize.query(`
+      ALTER TABLE subscriptions
+      ADD CONSTRAINT subscriptions_ibfk_1
+      FOREIGN KEY (teacherId) REFERENCES teachers(id)
+      ON DELETE CASCADE ON UPDATE CASCADE
+    `, { transaction: t });
+
+    // Subscriptions -> Users (studentId)
     try {
-      await sequelize.query(
-        `ALTER TABLE subscriptions DROP FOREIGN KEY subscriptions_ibfk_2`,
-        { transaction: t }
-      );
-      await sequelize.query(
-        `ALTER TABLE subscriptions
-         ADD CONSTRAINT subscriptions_ibfk_2
-         FOREIGN KEY (studentId) REFERENCES users(id)
-         ON DELETE CASCADE ON UPDATE CASCADE`,
-        { transaction: t }
-      );
+      await sequelize.query(`
+        ALTER TABLE subscriptions
+        DROP FOREIGN KEY subscriptions_ibfk_2
+      `, { transaction: t });
+
+      await sequelize.query(`
+        ALTER TABLE subscriptions
+        ADD CONSTRAINT subscriptions_ibfk_2
+        FOREIGN KEY (studentId) REFERENCES users(id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+      `, { transaction: t });
     } catch (_) {
-      // ignore if constraint name differs or not exists
+      // إذا ما موجود القيد، نتجاهل
     }
 
     await t.commit();
-    return res.json({ message: "✅ Database repaired successfully" });
+    res.json({ message: "✅ تم إصلاح قاعدة البيانات بنجاح (نفذ مرة وحدة)" });
+
   } catch (err) {
     await t.rollback();
-    console.error("❌ DB repair error:", err);
-    return res.status(500).json({
+    console.error("❌ DB Repair Error:", err);
+    res.status(500).json({
       error: "DB repair failed",
       details: err.message,
     });
   }
 });
+
+
 
 
 // طلب اشتراك (من الطالب)

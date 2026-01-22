@@ -27,7 +27,7 @@ const Teacher = sequelize.define("teacher", {
   timestamps: true
 });
 
-Teacher.belongsTo(Subject, { foreignKey: 'subjectId' , onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-Subject.hasMany(Teacher, { foreignKey: 'subjectId', onDelete: 'CASCADE', onUpdate: 'CASCADE'  });
+Teacher.belongsTo(Subject, { foreignKey: 'subjectId' , onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+Subject.hasMany(Teacher, { foreignKey: 'subjectId', onDelete: 'CASCADE', onUpdate: 'CASCADE' ,hooks: true});
 
 module.exports = Teacher;

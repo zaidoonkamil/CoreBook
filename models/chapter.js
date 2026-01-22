@@ -28,7 +28,7 @@ const Chapter = sequelize.define("chapter", {
   timestamps: true
 });
 
-Chapter.belongsTo(Lecture, { foreignKey: 'lectureId' });
-Lecture.hasMany(Chapter, { foreignKey: 'lectureId' });
+Chapter.belongsTo(Lecture, { foreignKey: 'lectureId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Lecture.hasMany(Chapter, {foreignKey: 'lectureId',onDelete: 'CASCADE',onUpdate: 'CASCADE',hooks: true,});
 
 module.exports = Chapter;

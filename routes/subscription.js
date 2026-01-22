@@ -8,7 +8,8 @@ const Class = require('../models/class');
 const multer = require("multer");
 const upload = multer();
 const { sendNotificationToRoleWithoutLog, sendNotificationToUser } = require('../services/notifications');
-
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
 
 // ✅ حماية بسيطة (غيّرها حسب نظامك)
